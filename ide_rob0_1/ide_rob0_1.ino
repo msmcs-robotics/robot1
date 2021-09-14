@@ -44,7 +44,7 @@ void le() { // set rules for scenarios for the left US
 
 
 
-// Servo for Front US Functions
+// Servo movement for Front US Functions
 
 class swivel { // control servo movement
 	
@@ -59,6 +59,14 @@ class swivel { // control servo movement
 	}
 
 	void sr() { // rotate to the right in respect to the robot orientation
+
+	}
+
+        void su() { // cant servo2 upward
+          
+	}
+
+	void sd() { // cant servo2 downward
 
 	}
 
