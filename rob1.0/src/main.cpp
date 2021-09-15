@@ -124,10 +124,10 @@ class drive: public swivel{ // allocate power to wheels, and creat proportions o
        }
        
        void l() {
-           bp(mr1);
-           fp(mr2);
-           fp(ml1);
-           bp(ml2);
+           fp(mr1);
+           bp(mr2);
+           bp(ml1);
+           fp(ml2);
        }
        
        // stopping 
