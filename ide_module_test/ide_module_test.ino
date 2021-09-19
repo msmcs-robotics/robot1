@@ -6,16 +6,17 @@
 
 #include <protothreads.h>//
 #include <pt-sleep.h>//
-#include <pt-sem.h>//
-//     ProtoThreads lib - https://gitlab.com/airbornemint/arduino-protothreads
-#include <pt.h>//
+#include <pt-sem.h>// 
+#include <pt.h>// ProtoThreads lib - https://gitlab.com/airbornemint/arduino-protothreads
 
 #include <Servo.h> // Servo lib
 
+// define sensors
 Ultrasonic us1(2, 3); // US1 pins
 Ultrasonic us2(4); // US2 pins
 Ultrasonic us3(5); // US3 pins
-  
+
+//define sensors
 Servo serv1;
 Servo serv2;
 
@@ -30,9 +31,9 @@ void bp(int inp) { // backward, less power
        
        
 void setup() {
-  Serial.begin(9600);
-  serv1.attach(12);
-  serv2.attach(13);
+  Serial.begin(9600); //start serial output at 9.6k baud rate
+  serv1.attach(12); // attach servo1 to pin12
+  serv2.attach(13); // attach servo2 to pin13
 }
 
 void loop () {
@@ -59,54 +60,54 @@ void loop () {
   
   for(pos1 = 0; pos1 < 180; pos1 += 1)   
   {                                  
-    serv1.write(pos1);              
+    serv1.write(pos1); // rotate serv1 continuously for 180 degrees         
     delay(15);                       
   }
   
   for(pos1 = 180; pos1 >= 1; pos1 -= 1)     
   {                                
-    serv1.write(pos1);              
+    serv1.write(pos1); // rotate serv1 continuously for 180 degrees in opposite direction
     delay(15);                     
   }
           
   for(pos2 = 0; pos2 < 180; pos2 += 1)  
   {                                 
-    serv2.write(pos2);              
+    serv2.write(pos2); // rotate serv2 continuously for 180 degrees               
     delay(15);                       
   }
           
           
   for(pos2 = 180; pos2 >= 1; pos2 -= 1)     
   {                                
-    serv2.write(pos2);               
+    serv2.write(pos2); // rotate serv2 continuously for 180 degrees in opposite direction           
     delay(15);                        
   }
   
-  // forward
+  // rotate motors forward
   fp(mr1);
   bp(mr2);
   fp(ml1);
   bp(ml2);
            
-  // backward 
+  // rotate motors backward 
   bp(mr1);
   fp(mr2);
   bp(ml1);
   fp(ml2);
   
-  // right
+  // rotate motors so that the robot turns right
   bp(mr1);
   fp(mr2);
   fp(ml1);
   bp(ml2);
   
-  // left
+  // rotate motors so that the robot turns left
   fp(mr1);
   bp(mr2);
   bp(ml1);
   fp(ml2);
            
-  // stop
+  // stop - cut power to motors
   bp(mr1);
   bp(mr2);
   bp(ml1);
