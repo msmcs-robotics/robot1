@@ -1,3 +1,4 @@
+#include <SPI.h>
 #include <SoftwareSerial.h> // Serial Monitor lib
 
 #include <Ultrasonic.h> // Ultrasonic Sensor lib - https://github.com/ErickSimoes/Ultrasonic
@@ -46,7 +47,7 @@ int sr = 13; // Pin for servo2
 // US data collection
 // Logic
 
-static struct pt pt1, pt2; // each protothread needs one of these
+static struct pt ptm1, ptm2, pts, ptdc, ptl; // each protothread needs one of these
 
 
 // US Functions, default unit of measurement is cm
@@ -277,6 +278,10 @@ void setup() {
 }
 
 void loop() {
-  protothread1(&pt1, 900); // schedule the two protothreads
-  protothread2(&pt2, 1000); // by calling them infinitely
+  protothread1(&ptm1, 1000); // schedule the two protothreads
+  protothread2(&ptm2, 1000); // by calling them infinitely
+  protothread2(&pts, 1000);
+  protothread2(&ptdc, 10);
+  protothread2(&ptl, 1000);
 }
+ptm1, ptm2, pts, ptdc, ptl
