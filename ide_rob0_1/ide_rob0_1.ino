@@ -28,17 +28,6 @@ int us2s = 3; // sig pin for us2
 int us3e = 4; // echo pin for us3 
 int us3t = 5; // trig pin for us3
 
-// Motor Driver Pins
-int mr1 = 8; // motor1 on board input4
-int mr2 = 9; // motor1 on board input3
-int ml1 = 10; // motor2 on board input2
-int ml2 = 11; // motor2 on board input1
-
-// Servo Pin
-int sl = 12; // Pin for servo1
-int sr = 13; // Pin for servo2
-*/
-
 
 // Protothreading for:
 // Motor1
@@ -48,7 +37,7 @@ int sr = 13; // Pin for servo2
 // Logic
 
 static struct pt ptm1, ptm2, pts, ptdc, ptl; // each protothread needs one of these
-
+*/
 
 // US Functions, default unit of measurement is cm
 class us {
@@ -145,7 +134,12 @@ class swivel: public us { // control servo movement
 class drive: public swivel{ // allocate power to wheels, and creat proportions of power
        
   private:
-       
+    
+    int m4 = 13;
+    int m3 = 12;
+    int m2 = 11;
+    int m1 = 10;
+    
     pinMode(m1, OUTPUT);     
     pinMode(m2, OUTPUT);
     pinMode(m3, OUTPUT);
@@ -157,7 +151,6 @@ class drive: public swivel{ // allocate power to wheels, and creat proportions o
   void forw() {
     digitalWrite(m1, LOW);// right wheel forward
     digitalWrite(m2, HIGH);//
-  
     digitalWrite(m3, LOW);// left wheel forward
     digitalWrite(m4, HIGH);//
   }
@@ -165,7 +158,6 @@ class drive: public swivel{ // allocate power to wheels, and creat proportions o
   void back() {
     digitalWrite(m3, HIGH);// left wheel back
     digitalWrite(m4, LOW);//
-  
     digitalWrite(m1, HIGH);// right wheel back ward
     digitalWrite(m2, LOW);//
 
@@ -181,9 +173,15 @@ class drive: public swivel{ // allocate power to wheels, and creat proportions o
   void lturn() {
     digitalWrite(m3, HIGH);// left wheel back
     digitalWrite(m4, LOW);//
-
     digitalWrite(m1, LOW);// right wheel forward
     digitalWrite(m2, HIGH);//  
+  }
+  
+  void stp() {
+    digitalWrite(m3, LOW);// left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, LOW);//  
   }
     
 };
@@ -194,31 +192,36 @@ void drivelogic() {
   
   drive d;
   
+  //just do it
+  d.forw();
+  
   // Motor logic (dictate motor movement with )
   bool turnr = false;
   bool turnl = false;
   bool stp = false;
   bool go = true;
+  bool back = false;
+
   
   // motor movement
-  d.f();
+  if (go = true){
+    d.forw();
+  }
+  
+  if (back = true){
+    d.back();
+  }
   
   if (turnr = true){
-    d.r();
-    delay(100);
-    d.f(); 
+    drive.rturn(); 
   }
   
   if (turnl = true){
-    d.l();
-    delay(100);
-    d.f();
+    drive.lturn();
   }
   
   if (stp = true){
-    d.s();
-    delay(100);
-    d.f();
+    d.stp();
   }
 }
 
@@ -254,15 +257,15 @@ void servlogic() {
 
 void setup() {
   Serial.begin(9600);
-  PT_INIT(&pt1);  // initialise the two
-  PT_INIT(&pt2);  // protothread variables
+  //PT_INIT(&pt1);  // initialise the two
+  //PT_INIT(&pt2);  // protothread variables
 }
 
 void loop() {
-  protothread1(&ptm1, 1000); // schedule the two protothreads
+  /*protothread1(&ptm1, 1000); // schedule the two protothreads
   protothread2(&ptm2, 1000); // by calling them infinitely
   protothread2(&pts, 1000);
   protothread2(&ptdc, 10);
-  protothread2(&ptl, 1000);
+  protothread2(&ptl, 1000);*/
 }
-ptm1, ptm2, pts, ptdc, ptl
+//ptm1, ptm2, pts, ptdc, ptl
