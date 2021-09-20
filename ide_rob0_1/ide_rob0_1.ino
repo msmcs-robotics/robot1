@@ -144,66 +144,47 @@ class swivel: public us { // control servo movement
 
 class drive: public swivel{ // allocate power to wheels, and creat proportions of power
        
-       private:
+  private:
        
-       int mr1 = 8; // motor1 on board input4
-       int mr2 = 9; // motor1 on board input3
-       int ml1 = 10; // motor2 on board input2
-       int ml2 = 11; // motor2 on board input1
+    pinMode(m1, OUTPUT);     
+    pinMode(m2, OUTPUT);
+    pinMode(m3, OUTPUT);
+    pinMode(m4, OUTPUT);
        
        // basic power
-       
-       void fp(int inp) { // forward, more power
-            digitalWrite(inp,HIGH);
-       }
+  public:
+  
+  void forw() {
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, HIGH);//
+  
+    digitalWrite(m3, LOW);// left wheel forward
+    digitalWrite(m4, HIGH);//
+  }
 
-       void bp(int inp) { // backward, less power
-            digitalWrite(inp,LOW);
-       }
-       
-       
-       public:
-        
-       // forward & backward
-       
-       void f() {
-           fp(mr1);
-           bp(mr2);
-           fp(ml1);
-           bp(ml2);
-       }
-       
-       void b() {
-           bp(mr1);
-           fp(mr2);
-           bp(ml1);
-           fp(ml2);
-       }
-       
-       // turning
-       
-       void r() {
-           bp(mr1);
-           fp(mr2);
-           fp(ml1);
-           bp(ml2);
-       }
-       
-       void l() {
-           fp(mr1);
-           bp(mr2);
-           bp(ml1);
-           fp(ml2);
-       }
-       
-       // stopping 
-       
-       void s(){
-           bp(mr1);
-           bp(mr2);
-           bp(ml1);
-           bp(ml2);
-       }
+  void back() {
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+  
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+
+  }
+
+  void rturn() {
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+    digitalWrite(m3, LOW);// left wheel forward
+    digitalWrite(m4, HIGH);//
+  }
+
+  void lturn() {
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, HIGH);//  
+  }
     
 };
 
