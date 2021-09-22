@@ -31,6 +31,9 @@ void setup() {
 
 void loop()
 {
+  if (digitalRead(m1) != 0 || digitalRead(m2) != 1 || digitalRead(m3) != 0 || digitalRead(m4) != 1) {
+  forw();
+  } else {}
   Serial.print("US-1 " + us1.Ranging(CM)); // CM or INC
   Serial.println(" cm" );
   delay(10);
