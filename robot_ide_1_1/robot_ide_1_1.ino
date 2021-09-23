@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <Ultrasonic.h> 
 
+//Wifi Module uses 
+
+
 //US1 is in front
 //US2 is facing left
 //US3 is facing right
@@ -65,7 +68,6 @@ void loop()
 void forw() {
   digitalWrite(m1, LOW);// right wheel forward
   digitalWrite(m2, HIGH);//
-  
   digitalWrite(m3, LOW);// left wheel forward
   digitalWrite(m4, HIGH);//
 }
@@ -73,7 +75,6 @@ void forw() {
 void back() {
   digitalWrite(m3, HIGH);// left wheel back
   digitalWrite(m4, LOW);//
-  
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
 
@@ -89,7 +90,6 @@ void rturn() {
 void lturn() {
   digitalWrite(m3, HIGH);// left wheel back
   digitalWrite(m4, LOW);//
-
   digitalWrite(m1, LOW);// right wheel forward
   digitalWrite(m2, HIGH);//  
 }
