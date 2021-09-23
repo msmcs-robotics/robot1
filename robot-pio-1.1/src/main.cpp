@@ -1,183 +1,110 @@
+#include <Arduino.h>
+#include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
+#include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
 
-// #include <TimedAction.h>
+static struct pt pt1, pt2;
 
-/* Pins are defind in the classes dedicated to the module functions
-
-Ex: class drive{} corresponds to the motors, therefore the pins connecting to the motor driver board are defined there
-
-
-// Motion Sensor Pins
-
-int us1s = 2; // sig pin for us1
-int us2s = 3; // sig pin for us2
-int us3e = 4; // echo pin for us3 
-int us3t = 5; // trig pin for us3
-
-// Motor Driver Pins
-int mr1 = 8; // motor1 on board input4
-int mr2 = 9; // motor1 on board input3
-int ml1 = 10; // motor2 on board input2
-int ml2 = 11; // motor2 on board input1
-
-// Servo Pin
-int sl = 12; // Pin for servo1
-int sr = 13; // Pin for servo2
-*/
+Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
+Ultrasonic us2(A2,A3); // pinout, pinin
+Ultrasonic us3(A4,A5);
 
 
-// US Functions
+int m4 = 13;
+int m3 = 12;
+int m2 = 11;
+int m1 = 10;
 
-
-void fe() { // swivel the servo to do a broad "scan"
+void forw() {
+  digitalWrite(m1, LOW);// right wheel forward
+  digitalWrite(m2, HIGH);//
+  digitalWrite(m3, LOW);// left wheel forward
+  digitalWrite(m4, HIGH);//
+}
+  // Allocate voltage to move backwards
+void back() {
+  digitalWrite(m3, HIGH);// left wheel back
+  digitalWrite(m4, LOW);//
+  digitalWrite(m1, HIGH);// right wheel back ward
+  digitalWrite(m2, LOW);//
 
 }
-
-
-void re() { // set rules for scenarios for the right US 
-
+  // Turn right
+void rturn() {
+  digitalWrite(m1, HIGH);// right wheel back ward
+  digitalWrite(m2, LOW);//
+  digitalWrite(m3, LOW);// left wheel forward
+  digitalWrite(m4, HIGH);//
+}
+  // Turn left
+void lturn() {
+  digitalWrite(m3, HIGH);// left wheel back
+  digitalWrite(m4, LOW);//
+  digitalWrite(m1, LOW);// right wheel forward
+  digitalWrite(m2, HIGH);//  
 }
 
-
-void le() { // set rules for scenarios for the left US 
-
-}
-
-
-
-// Servo movement for Front US Functions
-
-class swivel { // control servo movement
-	
-	private:
-
-        bool act = false;
-
-	public: 
-	
-	void sl() { // rotate to the left in respect to the robot orientation
-          
-	}
-
-	void sr() { // rotate to the right in respect to the robot orientation
-
-	}
-
-        void su() { // cant servo2 upward
-          
-	}
-
-	void sd() { // cant servo2 downward
-
-	}
-
-};
-
-
-
-// Motor Functions
-
-class drive: public swivel{ // allocate power to wheels, and creat proportions of power
-       
-       private:
-       
-       int mr1 = 8; // motor1 on board input4
-       int mr2 = 9; // motor1 on board input3
-       int ml1 = 10; // motor2 on board input2
-       int ml2 = 11; // motor2 on board input1
-       
-       // basic power
-       
-       void fp(int inp) { // forward, more power
-            digitalWrite(inp,HIGH);
-       }
-
-       void bp(int inp) { // backward, less power
-            digitalWrite(inp,LOW);
-       }
-       
-       
-       public:
-        
-       // forward & backward
-       
-       void f() {
-           fp(mr1);
-           bp(mr2);
-           fp(ml1);
-           bp(ml2);
-       }
-       
-       void b() {
-           bp(mr1);
-           fp(mr2);
-           bp(ml1);
-           fp(ml2);
-       }
-       
-       // turning
-       
-       void r() {
-           bp(mr1);
-           fp(mr2);
-           fp(ml1);
-           bp(ml2);
-       }
-       
-       void l() {
-           fp(mr1);
-           bp(mr2);
-           bp(ml1);
-           fp(ml2);
-       }
-       
-       // stopping 
-       
-       void s(){
-           bp(mr1);
-           bp(mr2);
-           bp(ml1);
-           bp(ml2);
-       }
-    
-};
-
-// setup
-
-void setup() {
-
-}
-
-
-// loop
-
-void loop() {
-  
-  drive d;
-  
-  bool turnr = false;
-  bool turnl = false;
-  bool stp = false;
-  bool go = true;
-  
-  d.f();
-  
-  if (turnr = true){
-    d.r();
-    delay(100);
-    d.f(); 
+static int prot1(struct pt *pt) {
+  PT_BEGIN(pt);
+  if (digitalRead(m1) != 0 || digitalRead(m2) != 1 || digitalRead(m3) != 0 || digitalRead(m4) != 1) {
+  forw();
   }
-  
-  if (turnl = true){
-    d.l();
-    delay(100);
-    d.f();
+  PT_END(pt);
+}
+
+
+static int prot2(struct pt *pt) {
+  PT_BEGIN(pt);
+  if (us1.Ranging(CM) <= 10) {
+    Serial.print("WARNING");
+    back();
+    delay(10);
+  } else if (us2.Ranging(CM) <= 10) {
+    Serial.print("WARNING");;
+    rturn();
+    delay(10);
+  } else if (us3.Ranging(CM) <= 10) {
+    Serial.print("WARNING");
+    lturn();
+    delay(10);
   }
+  PT_END(pt);
+}
+
+void setup() {    
+  // Serial.begin(9600); 
+ 
+  // initialise protothread vars
+  PT_INIT(&pt1);
+  PT_INIT(&pt2);
   
-  if (stp = true){
-    d.s();
-    delay(100);
-    d.f();
-  }
+  //Ultrasonic Sensors (analog pins)
+  pinMode(A0, OUTPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, INPUT);
+  pinMode(A4, OUTPUT);
+  pinMode(A5, INPUT);
   
+  // motors (digital pins)
+  pinMode(m1, OUTPUT);     
+  pinMode(m2, OUTPUT);
+  pinMode(m3, OUTPUT);
+  pinMode(m4, OUTPUT);
+}
+
+
+void loop()
+{
+  /*Serial.print("US-1 " + us1.Ranging(CM)); // CM or INC
+  Serial.println(" cm" );
+  delay(10);
+  Serial.print("US-2 " + us2.Ranging(CM)); // CM or INC
+  Serial.println(" cm" );
+  delay(10);
+  Serial.print("US-3 " + us3.Ranging(CM)); // CM or INC
+  Serial.println(" cm" );
+  delay(10);*/
   
+  prot1(&pt1);
+  prot2(&pt2);
 }
