@@ -59,10 +59,7 @@ void loop()
     Serial.print("WARNING");
     lturn();
     delay(200);
-  } else {
-    forw();
-    delay(200);
-  }
+  } else {}
 }
 
 void forw() {
