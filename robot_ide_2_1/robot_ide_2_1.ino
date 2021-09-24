@@ -1,51 +1,84 @@
-// Nueral Network Reference: http://robotics.hobbizine.com/arduinoann.html
+// src-url: http://robotics.hobbizine.com/arduinoann.html
 
-/******************************************************************
- * ArduinoANN - An artificial neural network for the Arduino
- * All basic settings can be controlled via the Network Configuration
- * section.
- * See robotics.hobbizine.com/arduinoann.html for details.
- ******************************************************************/
 
+#include <Arduino.h>
+#include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
+//#include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
 #include <math.h>
+
+/*
+quick search for function names in order:
+void setup() // setup
+void pwmotor() // allocate power to motors
+void toTerminal() // print to terminal
+void InputToOutput // run inputs through nn-weights
+void trainn() // train nn
+void drivenn() // drive with nn
+void loop() // run
+*/
 
 /******************************************************************
  * Network Configuration - customized per network 
  ******************************************************************/
 
-const int PatternCount = 10;
-const int InputNodes = 7;
-const int HiddenNodes = 8;
-const int OutputNodes = 4;
+// setup each protothread
+//static struct pt pt1, pt2;
+
+// Create ultrasonic sensor objects to use in logic
+Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
+Ultrasonic us2(A2,A3); // pinout, pinin
+Ultrasonic us3(A4,A5);
+
+// setup motor pin variables
+int m4 = 12;
+int m3 = 11;
+int m2 = 10;
+int m1 = 9;
+
+// randomizer pin
+int rpin = 2;
+
+//warning LED
+int LEDWARN = 13;
+
+const int PatternCount = 8;
+const int InputNodes = 3;
+const int HiddenNodes = 4;
+const int OutputNodes = 8;
 const float LearningRate = 0.3;
 const float Momentum = 0.9;
 const float InitialWeightMax = 0.5;
 const float Success = 0.0004;
 
+// US-1 is in front
+// US-2 is on the left
+// US-3 is on the right
+
 const byte Input[PatternCount][InputNodes] = {
-  { 1, 1, 1, 1, 1, 1, 0 },  // 0
-  { 0, 1, 1, 0, 0, 0, 0 },  // 1
-  { 1, 1, 0, 1, 1, 0, 1 },  // 2
-  { 1, 1, 1, 1, 0, 0, 1 },  // 3
-  { 0, 1, 1, 0, 0, 1, 1 },  // 4
-  { 1, 0, 1, 1, 0, 1, 1 },  // 5
-  { 0, 0, 1, 1, 1, 1, 1 },  // 6
-  { 1, 1, 1, 0, 0, 0, 0 },  // 7 
-  { 1, 1, 1, 1, 1, 1, 1 },  // 8
-  { 1, 1, 1, 0, 0, 1, 1 }   // 9
+  { 0,0,0 }, // 0 // not in 10cm
+  { 1,0,0 }, // 1 // 10cm on 1
+  { 0,1,0 }, // 2 // 10cm on 2
+  { 0,0,1 }, // 3 // 10cm on 3
+  { 1,1,0 }, // 4 // 10cm on 1,2
+  { 0,1,1 }, // 5 // 10cm on 2,3
+  { 1,0,1 }, // 6 // 10cm on 1,3
+  { 1,1,1 }, // 7 // 10cm on 1,2,3
+ 
 }; 
 
+// motor input: 1, 2, 3, 4
+// wheels are full power unless stopped, 
+// so possible output is lower, and can
+// integrate slowing down in later versions
 const byte Target[PatternCount][OutputNodes] = {
-  { 0, 0, 0, 0 },  
-  { 0, 0, 0, 1 }, 
-  { 0, 0, 1, 0 }, 
-  { 0, 0, 1, 1 }, 
-  { 0, 1, 0, 0 }, 
-  { 0, 1, 0, 1 }, 
-  { 0, 1, 1, 0 }, 
-  { 0, 1, 1, 1 }, 
-  { 1, 0, 0, 0 }, 
-  { 1, 0, 0, 1 } 
+  { 1, 1, 1, 1 }, // go forward
+  { 0, 0, 0, 0 }, // go backwards
+  { 1, 0, 0, 1 }, // turn right
+  { 0, 1, 1, 0 }, // turn left
+  { 0, 1, 0, 0 }, // go back and turn right
+  { 0, 1, 0, 1 }, // go forward
+  { 0, 1, 1, 1 }, // go back and turn left
+  { 0.5, 0.5, 0.5, 0.5 } // do nothing, wait till clear 
 };
 
 /******************************************************************
@@ -71,18 +104,174 @@ float OutputDelta[OutputNodes];
 float ChangeHiddenWeights[InputNodes+1][HiddenNodes];
 float ChangeOutputWeights[HiddenNodes+1][OutputNodes];
 
-void setup(){
+void setup() {
   Serial.begin(9600);
-  randomSeed(analogRead(3));
+  // initialise protothread vars
+  //PT_INIT(&pt1);
+  //PT_INIT(&pt2);
+  
+  //Ultrasonic Sensors (analog pins)
+  pinMode(A0, OUTPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, INPUT);
+  pinMode(A4, OUTPUT);
+  pinMode(A5, INPUT);
+  
+  // motors (digital pins)
+  pinMode(m1, OUTPUT);     
+  pinMode(m2, OUTPUT);
+  pinMode(m3, OUTPUT);
+  pinMode(m4, OUTPUT);
+  randomSeed(digitalRead(2));
   ReportEvery1000 = 1;
   for( p = 0 ; p < PatternCount ; p++ ) {    
     RandomizedIndex[p] = p ;
   }
 }  
 
-void loop (){
+                                                      // CHANGE THIS OUT FOR PWM IN LATER VERSIONS
+void pwmotor(int pw1, int pw2, int pw3, int pw4) {
+  if (pw1 == 1, pw2 == 1, pw3 == 1, pw4 == 1) {
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, HIGH);//
+    digitalWrite(m3, LOW);// left wheel forward
+    digitalWrite(m4, HIGH);//
+  } else if (pw1 == 0, pw2 == 0, pw3 == 0, pw4 == 0) {
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+  } else if (pw1 == 1, pw2 == 0, pw3 == 0, pw4 == 1) {
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+    digitalWrite(m3, LOW);// left wheel forward
+    digitalWrite(m4, HIGH);//
+  } else if (pw1 == 0, pw2 == 1, pw3 == 1, pw4 == 0) {
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, HIGH);//  
+  } else if (pw1 == 0, pw2 == 1, pw3 == 0, pw4 == 0) {                                            
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+    delay(100);
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+    digitalWrite(m3, LOW);// left wheel forward
+    digitalWrite(m4, HIGH);//
+  } else if (pw1 == 0, pw2 == 1, pw3 == 0, pw4 == 1) {
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, HIGH);//
+    digitalWrite(m3, LOW);// left wheel forward
+    digitalWrite(m4, HIGH);//
+  } else if (pw1 == 0, pw2 == 1, pw3 == 1, pw4 == 1) {
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, HIGH);// right wheel back ward
+    digitalWrite(m2, LOW);//
+    delay(100);
+    digitalWrite(m3, HIGH);// left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, LOW);// right wheel forward
+    digitalWrite(m2, HIGH);//
+  } else {
+    digitalWrite(m3, LOW);//left wheel back
+    digitalWrite(m4, LOW);//
+    digitalWrite(m1, LOW);// Stop the robot
+    digitalWrite(m2, LOW);//
+  }; 
+}
 
+void toTerminal() {
 
+  for( p = 0 ; p < PatternCount ; p++ ) { 
+    Serial.println(); 
+    Serial.print ("  Training Pattern: ");
+    Serial.println (p);      
+    Serial.print ("  Input ");
+    for( i = 0 ; i < InputNodes ; i++ ) {
+      Serial.print (Input[p][i], DEC);
+      Serial.print (" ");
+    }
+    Serial.print ("  Target ");
+    for( i = 0 ; i < OutputNodes ; i++ ) {
+      Serial.print (Target[p][i], DEC);
+      Serial.print (" ");
+    }
+/******************************************************************
+* Compute hidden layer activations
+******************************************************************/
+
+    for( i = 0 ; i < HiddenNodes ; i++ ) {    
+      Accum = HiddenWeights[InputNodes][i] ;
+      for( j = 0 ; j < InputNodes ; j++ ) {
+        Accum += Input[p][j] * HiddenWeights[j][i] ;
+      }
+      Hidden[i] = 1.0/(1.0 + exp(-Accum)) ;
+    }
+
+/******************************************************************
+* Compute output layer activations and calculate errors
+******************************************************************/
+
+    for( i = 0 ; i < OutputNodes ; i++ ) {    
+      Accum = OutputWeights[HiddenNodes][i] ;
+      for( j = 0 ; j < HiddenNodes ; j++ ) {
+        Accum += Hidden[j] * OutputWeights[j][i] ;
+      }
+      Output[i] = 1.0/(1.0 + exp(-Accum)) ; 
+    }
+    Serial.print ("  Output ");
+    for( i = 0 ; i < OutputNodes ; i++ ) {       
+      Serial.print (Output[i], 5);
+      Serial.print (" ");
+    }
+  }
+}
+
+void InputToOutput(float In1, float In2, float In3)
+{
+  float TestInput[] = {0, 0, 0, 0};
+  TestInput[0] = In1;
+  TestInput[1] = In2;
+  TestInput[2] = In3;
+
+  /******************************************************************
+    Compute hidden layer activations
+  ******************************************************************/
+
+  for ( i = 0 ; i < HiddenNodes ; i++ ) {
+    Accum = HiddenWeights[InputNodes][i] ;
+    for ( j = 0 ; j < InputNodes ; j++ ) {
+      Accum += TestInput[j] * HiddenWeights[j][i] ;
+    }
+    Hidden[i] = 1.0 / (1.0 + exp(-Accum)) ;
+  }
+
+  /******************************************************************
+    Compute output layer activations and calculate errors
+  ******************************************************************/
+
+  for ( i = 0 ; i < OutputNodes ; i++ ) {
+    Accum = OutputWeights[HiddenNodes][i] ;
+    for ( j = 0 ; j < HiddenNodes ; j++ ) {
+      Accum += Hidden[j] * OutputWeights[j][i] ;
+    }
+    Output[i] = 1.0 / (1.0 + exp(-Accum)) ;
+  }
+#ifdef DEBUG
+  Serial.print ("  Output ");
+  for ( i = 0 ; i < OutputNodes ; i++ ) {
+    Serial.print (Output[i], 5);
+    Serial.print (" ");
+  }
+#endif
+}
+
+void trainn() {
 /******************************************************************
 * Initialize HiddenWeights and ChangeHiddenWeights 
 ******************************************************************/
@@ -247,177 +436,90 @@ void loop (){
   ReportEvery1000 = 1;
 }
 
-void toTerminal()
-{
-
-  for( p = 0 ; p < PatternCount ; p++ ) { 
-    Serial.println(); 
-    Serial.print ("  Training Pattern: ");
-    Serial.println (p);      
-    Serial.print ("  Input ");
-    for( i = 0 ; i < InputNodes ; i++ ) {
-      Serial.print (Input[p][i], DEC);
-      Serial.print (" ");
-    }
-    Serial.print ("  Target ");
-    for( i = 0 ; i < OutputNodes ; i++ ) {
-      Serial.print (Target[p][i], DEC);
-      Serial.print (" ");
-    }
-/******************************************************************
-* Compute hidden layer activations
-******************************************************************/
-
-    for( i = 0 ; i < HiddenNodes ; i++ ) {    
-      Accum = HiddenWeights[InputNodes][i] ;
-      for( j = 0 ; j < InputNodes ; j++ ) {
-        Accum += Input[p][j] * HiddenWeights[j][i] ;
-      }
-      Hidden[i] = 1.0/(1.0 + exp(-Accum)) ;
-    }
-
-/******************************************************************
-* Compute output layer activations and calculate errors
-******************************************************************/
-
-    for( i = 0 ; i < OutputNodes ; i++ ) {    
-      Accum = OutputWeights[HiddenNodes][i] ;
-      for( j = 0 ; j < HiddenNodes ; j++ ) {
-        Accum += Hidden[j] * OutputWeights[j][i] ;
-      }
-      Output[i] = 1.0/(1.0 + exp(-Accum)) ; 
-    }
-    Serial.print ("  Output ");
-    for( i = 0 ; i < OutputNodes ; i++ ) {       
-      Serial.print (Output[i], 5);
-      Serial.print (" ");
-    }
+void drivenn() {
+Serial.println("Running NN Drive Test");
+  if (Success < Error) {
+    int prog_start = 0;
+    Serial.println("NN not Trained");
   }
+  while (Error < Success) {
+    int num;
+    int farDist = 35;
+    int closeDist = 7;
+    float TestInput[] = {0, 0, 0, 0};
+    digitalWrite(LEDWARN, LOW);
 
+    int LL1 = us1.Ranging(CM);   // Collect sonar distances.
+    int LL2 = us2.Ranging(CM);   // Collect sonar distances.
+    int LL3 = us3.Ranging(CM);   // Collect sonar distances.
 
-}
+#ifdef DEBUG
+    Serial.print("Light Level: ");
+    Serial.print(LL1);
+    Serial.print("\t");
+    Serial.print(LL2);
+    Serial.print("\t");
+    Serial.print(LL3);
+    
+#endif
 
-/*
-#include <Arduino.h>
-#include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
-#include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
+    digitalWrite(LEDWARN, HIGH);
 
-//Wifi Module uses x pins, adding later
+    LL1 = map(LL1, 2, 51, 0, 100);
+    LL2 = map(LL2, 2, 51, 0, 100);
+    LL3 = map(LL3, 2, 51, 0, 100);
 
-// setup each protothread
-static struct pt pt1, pt2;
+    LL1 = constrain(LL1, 0, 100);
+    LL2 = constrain(LL2, 0, 100);
+    LL3 = constrain(LL3, 0, 100);
 
-// Create ultrasonic sensor objects to use in logic
-Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
-Ultrasonic us2(A2,A3); // pinout, pinin
-Ultrasonic us3(A4,A5);
+    TestInput[0] = float(LL1) / 100;
+    TestInput[1] = float(LL2) / 100;
+    TestInput[2] = float(LL3) / 100;
+    
+#ifdef DEBUG
+    Serial.print("Input: ");
+    Serial.print(TestInput[2], 2);
+    Serial.print("\t");
+    Serial.print(TestInput[1], 2);
+    Serial.print("\t");
+    Serial.println(TestInput[0], 2);
+#endif
 
-// setup motor pin variables
-int m4 = 13;
-int m3 = 12;
-int m2 = 11;
-int m1 = 10;
+    InputToOutput(TestInput[0], TestInput[1], TestInput[2]); //INPUT to ANN to obtain OUTPUT
 
-// start serial monitor if needed (debugging), and
-// set pinout
-void setup() {    
-  // Serial.begin(9600); 
- 
-  // initialise protothread vars
-  PT_INIT(&pt1);
-  PT_INIT(&pt2);
-  
-  //Ultrasonic Sensors (analog pins)
-  pinMode(A0, OUTPUT);
-  pinMode(A1, INPUT);
-  pinMode(A2, OUTPUT);
-  pinMode(A3, INPUT);
-  pinMode(A4, OUTPUT);
-  pinMode(A5, INPUT);
-  
-  // motors (digital pins)
-  pinMode(m1, OUTPUT);     
-  pinMode(m2, OUTPUT);
-  pinMode(m3, OUTPUT);
-  pinMode(m4, OUTPUT);
-}
-
-// the infinite loop to run on the arduino
-void loop()
-{
-  
-  
-  Serial.print("US-1 " + us1.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  Serial.print("US-2 " + us2.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  Serial.print("US-3 " + us3.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  
-  // schedule threads indefinitely
-  prot1(&pt1);
-  prot2(&pt2);
-}
-
-
-static int prot1(struct pt *pt) {
-  PT_BEGIN(pt);
-  if (digitalRead(m1) != 0 || digitalRead(m2) != 1 || digitalRead(m3) != 0 || digitalRead(m4) != 1) {
-  forw();
+    int pw1 = Output[0];
+    int pw2 = Output[1];
+    int pw3 = Output[2];
+    int pw4 = Output[3];
+    
+    pw1 = int(pw1);
+    pw2 = int(pw2);
+    pw3 = int(pw3);
+    pw4 = int(pw4);
+    
+#ifdef DEBUG
+    Serial.print("Speed: ");
+    Serial.print(pw1);
+    Serial.print("\t");
+    Serial.println(pw2);
+    Serial.print("\t");
+    Serial.println(pw3);
+    Serial.print("\t");
+    Serial.println(pw4);
+#endif
+    pwmotor(pw1, pw2, pw3, pw4);
+    delay(50);
   }
-  PT_END(pt);
 }
 
-static int prot2(struct pt *pt) {
-  PT_BEGIN(pt);
-  if (us1.Ranging(CM) <= 10) {
-    Serial.print("WARNING");
-    back();
-    delay(10);
-  } else if (us2.Ranging(CM) <= 10) {
-    Serial.print("WARNING");;
-    rturn();
-    delay(10);
-  } else if (us3.Ranging(CM) <= 10) {
-    Serial.print("WARNING");
-    lturn();
-    delay(10);
-  }
-  PT_END(pt);
+void loop() {
+  
 }
 
-void forw() {
-  digitalWrite(m1, LOW);// right wheel forward
-  digitalWrite(m2, HIGH);//
-  digitalWrite(m3, LOW);// left wheel forward
-  digitalWrite(m4, HIGH);//
-}
 
-void back() {
-  digitalWrite(m3, HIGH);// left wheel back
-  digitalWrite(m4, LOW);//
-  digitalWrite(m1, HIGH);// right wheel back ward
-  digitalWrite(m2, LOW);//
 
-}
 
-void rturn() {
-  digitalWrite(m1, HIGH);// right wheel back ward
-  digitalWrite(m2, LOW);//
-  digitalWrite(m3, LOW);// left wheel forward
-  digitalWrite(m4, HIGH);//
-}
-
-void lturn() {
-  digitalWrite(m3, HIGH);// left wheel back
-  digitalWrite(m4, LOW);//
-  digitalWrite(m1, LOW);// right wheel forward
-  digitalWrite(m2, HIGH);//  
-}
-*/
 
 
 
