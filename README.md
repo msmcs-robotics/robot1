@@ -1,7 +1,7 @@
 # Robot1 
 *Firmware for the first MSMCS robotics kit*
 
-### Version Numbers and Their Context
+## Version Numbers and Their Context
 
 | Version # |   Description |
 |-----------|---------------|
@@ -18,10 +18,10 @@
    robot functionality.
    
    
-### Version Overviews in Detail
+## Version Overviews in Detail
 
 
-**1.0**
+#### 1.0
 Basic integration and functionality for the following arduino modules:
 
  - DC Motors / PWM motors
@@ -29,16 +29,16 @@ Basic integration and functionality for the following arduino modules:
  - Micro SD TF Card module
 
 
-**2.0**
+#### 2.0
 Integration of a nueral network into a compilation of basic sketches. 
 *more info in progress...*
 
 
-**3.0**
+#### 3.0
 Integration of the ESP8266mod (ESP 12-F) module for wifi control.
 *more info in progress...*
 
-**4.0**
-THe accumulation of the basic sketches, networking, and a nueral network all 
+#### 4.0
+The accumulation of the basic sketches, networking, and a nueral network all 
 functioning simultaneously.
 *more info in progress...*
