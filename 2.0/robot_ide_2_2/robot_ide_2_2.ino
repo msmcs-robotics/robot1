@@ -35,10 +35,7 @@ int m3 = 10;
 int m2 = 6;
 int m1 = 5;
 
-// randomizer pin
-int rpin = 2;
-
-//warning LED
+//warning LED pin
 int LEDWARN = 13;
 
 const int PatternCount = 8;
