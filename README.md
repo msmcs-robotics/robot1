@@ -1,7 +1,7 @@
 # Robot1 
 *Firmware for the first MSMCS robotics kit*
 
-## Version Numbers and Their Context
+## 📋 Version Numbers and Their Context
 
 | Version # |   Description |
 |-----------|---------------|
@@ -9,16 +9,9 @@
 | 2.0       |   Basic + Nueral |
 | 3.0       |   Basic + Networking  |
 | 4.0       |   Basic + Nueral + Networking  |
-
-
- - The use of maintaining different versions at the same time
-   helps to implement code precedents into project development.
- - This method of categorization, while subjective, helps to organize
-   releases for various firmware and provide more control over
-   robot functionality.
    
    
-## Version Overviews in Detail
+## 📖 Version Overviews in Detail
 
 
 #### 1.0
