@@ -1,8 +1,13 @@
 #include <Arduino.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
+#include <SD.h> // Defualt SD Card lib
+#include <SPI.h> // Req for SD Card
 
 //Wifi Module uses x pins, adding later
+
+// Open a new file to log data on SD card
+File datalog = SD.open("datalog.txt", FILE_WRITE);
 
 // setup each protothread
 static struct pt pt1, pt2;
@@ -13,10 +18,10 @@ Ultrasonic us2(A2,A3); // pinout, pinin
 Ultrasonic us3(A4,A5);
 
 // setup motor pin variables
-int m4 = 13;
-int m3 = 12;
-int m2 = 11;
-int m1 = 10;
+int m4 = 9;
+int m3 = 6;
+int m2 = 5;
+int m1 = 3;
 
 // start serial monitor if needed (debugging), and
 // set pinout
@@ -40,6 +45,11 @@ void setup() {
   pinMode(m2, OUTPUT);
   pinMode(m3, OUTPUT);
   pinMode(m4, OUTPUT);
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(10)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
 }
 
   // Allocate voltage to motor pins so that
@@ -49,6 +59,7 @@ void forw() {
   digitalWrite(m2, HIGH);//
   digitalWrite(m3, LOW);// left wheel forward
   digitalWrite(m4, HIGH);//
+  datalog.println("forw");
 }
   // Allocate voltage to move backwards
 void back() {
@@ -56,21 +67,21 @@ void back() {
   digitalWrite(m4, LOW);//
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
-
+  datalog.println("back");
 }
   // Turn right
 void rturn() {
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
   digitalWrite(m3, LOW);// left wheel forward
-  digitalWrite(m4, HIGH);//
+  datalog.println("rturn");
 }
   // Turn left
 void lturn() {
   digitalWrite(m3, HIGH);// left wheel back
   digitalWrite(m4, LOW);//
   digitalWrite(m1, LOW);// right wheel forward
-  digitalWrite(m2, HIGH);//  
+  datalog.println("lturn"); 
 }
 
 /* This thread determines if the robot is

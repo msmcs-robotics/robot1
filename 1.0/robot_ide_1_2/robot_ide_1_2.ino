@@ -140,13 +140,13 @@ void rturn() {
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
   digitalWrite(m3, LOW);// left wheel forward
-  datalog.println("rturn");
+  datalog.println("right");
 }
   // Turn left
 void lturn() {
   digitalWrite(m3, HIGH);// left wheel back
   digitalWrite(m4, LOW);//
   digitalWrite(m1, LOW);// right wheel forward
-  datalog.println("lturn"); 
+  datalog.println("left"); 
 }
 
