@@ -8,15 +8,15 @@
 static struct pt pt1, pt2;
 
 // Create ultrasonic sensor objects to use in logic
-Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
-Ultrasonic us2(A2,A3); // pinout, pinin
-Ultrasonic us3(A4,A5);
+Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN) pinout, pinin
+Ultrasonic us2(A2,A3); // on the left
+Ultrasonic us3(A4,A5); // on teh right
 
 // setup motor pin variables
-int m4 = 13;
-int m3 = 12;
-int m2 = 11;
-int m1 = 10;
+int m4 = 11;
+int m3 = 10;
+int m2 = 6;
+int m1 = 5;
 
 // start serial monitor if needed (debugging), and
 // set pinout
