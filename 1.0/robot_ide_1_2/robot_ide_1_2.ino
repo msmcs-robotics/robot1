@@ -1,33 +1,43 @@
 #include <Arduino.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
-#include <SD.h> // Defualt SD Card lib
-#include <SPI.h> // Req for SD Card
-
-//Wifi Module uses x pins, adding later
-
-// setup each protothread
-static struct pt pt1, pt2;
-
-// Create ultrasonic sensor objects to use in logic
-Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN) pinout, pinin
-Ultrasonic us2(A2,A3); // on the left
-Ultrasonic us3(A4,A5); // on teh right
 
 // setup motor pin variables
-int m4 = 9;
-int m3 = 6;
-int m2 = 5;
 int m1 = 3;
+int m2 = 7;
+int m3 = 8;
+int m4 = 9;
+
+int p1 = 5;
+int p2 = 6;
+
+//setup Motor pin voltage variables
+boolean a;
+boolean b; // bools will be high and low
+boolean c;
+boolean d;
+int pa;
+int pb; // ints will be PWM
+
+// setup each protothread
+static struct pt pt1;
+//Wifi Module uses x pins, adding later
+
+// Open a new file to log data on SD card
+// close file if needed 
+//datalog.close();
+
+// Create ultrasonic sensor objects to use in logic
+Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
+Ultrasonic us2(A2,A3); // pinout, pinin
+Ultrasonic us3(A4,A5);
 
 // start serial monitor if needed (debugging), and
 // set pinout
 void setup() {    
-  // Serial.begin(9600); 
- 
-  // initialise protothread vars
+  Serial.begin(9600); 
+
   PT_INIT(&pt1);
-  PT_INIT(&pt2);
   
   //Ultrasonic Sensors (analog pins)
   pinMode(A0, OUTPUT);
@@ -42,114 +52,71 @@ void setup() {
   pinMode(m2, OUTPUT);
   pinMode(m3, OUTPUT);
   pinMode(m4, OUTPUT);
-}
-
-// the infinite loop to run on the arduino
-void loop()
-{
-  
-  // Serial monitoring is turned off to save on 
-  // performance, but will be useful for debugging if needed
-  
-  /*Serial.print("US-1 " + us1.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  Serial.print("US-2 " + us2.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  Serial.print("US-3 " + us3.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);*/
-  
-  // schedule threads indefinitely
-  prot1(&pt1);
-  prot2(&pt2);
+  pinMode(p1, OUTPUT);
+  pinMode(p2, OUTPUT);
 }
 
 
-/* This thread determines if the robot is
-   setup to move forward, if not, then start
-   moving the robot forward 
-*/
 static int prot1(struct pt *pt) {
   PT_BEGIN(pt);
-  if (digitalRead(m1) != 0 || digitalRead(m2) != 1 || digitalRead(m3) != 0 || digitalRead(m4) != 1) {
-  forw();
-  }
-  PT_END(pt);
-}
-
-/* This thread gathers and interprets data
-   from the ultrasonic sensors and makes
-   decisions for movement based on that data.
-   
-   Specifically, if an object is measured to 
-   be at or less than 10cm away, then the robot
-   will react in accordance to the logic below.
-   
-   SideNote: 
-   us1 is in front
-   us2 is facing left, so turn right
-   us3 is facing right, so turn left
-*/
-static int prot2(struct pt *pt) {
-  PT_BEGIN(pt);
   if (us1.Ranging(CM) <= 10) {
-    Serial.print("WARNING");
-    back();
+    Serial.print("WARNING, going back");
+    a = HIGH;
+    b = LOW;
+    c = HIGH;
+    d = LOW;
+    pa = 255;
+    pb = 255;
+    dm(a, b, c, d, pa, pb);
     delay(10);
   } else if (us2.Ranging(CM) <= 10) {
-    Serial.print("WARNING");;
-    rturn();
+    Serial.print("WARNING, going right");;
+    a = HIGH;
+    b = LOW;
+    c = LOW;
+    d = HIGH;
+    pa = 255;
+    pb = 255;
+    dm(a, b, c, d, pa, pb);
     delay(10);
   } else if (us3.Ranging(CM) <= 10) {
-    Serial.print("WARNING");
-    lturn();
+    Serial.print("WARNING, going left");
+    a = LOW;
+    b = HIGH;
+    c = HIGH;
+    d = LOW;
+    pa = 255;
+    pb = 255;
+    dm(a, b, c, d, pa, pb);
     delay(10);
+  } else {
+    Serial.print("Moving...");
+    a = LOW;
+    b = HIGH;
+    c = LOW;
+    d = HIGH;
+    pa = 255;
+    pb = 255;
+    dm(a, b, c, d, pa, pb);
   }
   PT_END(pt);
 }
 
-  // Allocate voltage to motor pins so that
-  // the robot moves forward
-void forw() {
-  File datalog = SD.open("datalog.txt", FILE_WRITE);
-  datalog.println("forw");
-  datalog.close();
-  digitalWrite(m1, LOW);// right wheel forward
-  digitalWrite(m2, HIGH);//
-  digitalWrite(m3, LOW);// left wheel forward
-  digitalWrite(m4, HIGH);//
+// Allocate voltage to motor pins for PWM  
+void dm(boolean a, boolean b, boolean c, boolean d, int pa, int pb) {
+  digitalWrite(m1, a);
+  digitalWrite(m2, b);
+  digitalWrite(m3, c);
+  digitalWrite(m4, d);
+  analogWrite(p1, pa);
+  analogWrite(p2, pb);
+  
+  // working on converting values to strings
+  /*if (datalog) {
+    datalog.println("Bools: "+"\nm1 - "+a+"\nm2 - "+b+"\nm3 - "+c+"\nm4 - "+d);
+    datalog.println("PWM: "+"\nMotorA - "+pa+"\nMotorB - "+pb);
+  }*/
 }
-  // Allocate voltage to move backwards
-void back() {
-  File datalog = SD.open("datalog.txt", FILE_WRITE);
-  datalog.println("back");
-  datalog.close();
-  digitalWrite(m3, HIGH);// left wheel back
-  digitalWrite(m4, LOW);//
-  digitalWrite(m1, HIGH);// right wheel back ward
-  digitalWrite(m2, LOW);//
-
+void loop() {
+  prot1(&pt1);
 }
-  // Turn right
-void rturn() {
-  File datalog = SD.open("datalog.txt", FILE_WRITE);
-  datalog.println("right");
-  datalog.close();
-  digitalWrite(m1, HIGH);// right wheel back ward
-  digitalWrite(m2, LOW);//
-  digitalWrite(m3, LOW);// left wheel forward
-  digitalWrite(m4, HIGH);//
-}
-  // Turn left
-void lturn() {
-  File datalog = SD.open("datalog.txt", FILE_WRITE);
-  datalog.println("left");
-  datalog.close();
-  digitalWrite(m3, HIGH);// left wheel back
-  digitalWrite(m4, LOW);//
-  digitalWrite(m1, LOW);// right wheel forward
-  digitalWrite(m2, HIGH);//  
-}
-
