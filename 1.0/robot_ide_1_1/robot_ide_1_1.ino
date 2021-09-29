@@ -13,10 +13,10 @@ Ultrasonic us2(A2,A3); // on the left
 Ultrasonic us3(A4,A5); // on teh right
 
 // setup motor pin variables
-int m4 = 11;
-int m3 = 10;
-int m2 = 6;
-int m1 = 5;
+int m4 = 9;
+int m3 = 6;
+int m2 = 5;
+int m1 = 3;
 
 // start serial monitor if needed (debugging), and
 // set pinout

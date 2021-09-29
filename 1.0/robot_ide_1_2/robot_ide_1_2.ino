@@ -6,16 +6,13 @@
 
 //Wifi Module uses x pins, adding later
 
-// Open a new file to log data on SD card
-File datalog = SD.open("datalog.txt", FILE_WRITE);
-
 // setup each protothread
 static struct pt pt1, pt2;
 
 // Create ultrasonic sensor objects to use in logic
-Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
-Ultrasonic us2(A2,A3); // pinout, pinin
-Ultrasonic us3(A4,A5);
+Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN) pinout, pinin
+Ultrasonic us2(A2,A3); // on the left
+Ultrasonic us3(A4,A5); // on teh right
 
 // setup motor pin variables
 int m4 = 9;
@@ -45,11 +42,6 @@ void setup() {
   pinMode(m2, OUTPUT);
   pinMode(m3, OUTPUT);
   pinMode(m4, OUTPUT);
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(10)) {
-    Serial.println("initialization failed!");
-    while (1);
-  }
 }
 
 // the infinite loop to run on the arduino
@@ -121,32 +113,43 @@ static int prot2(struct pt *pt) {
   // Allocate voltage to motor pins so that
   // the robot moves forward
 void forw() {
+  File datalog = SD.open("datalog.txt", FILE_WRITE);
+  datalog.println("forw");
+  datalog.close();
   digitalWrite(m1, LOW);// right wheel forward
   digitalWrite(m2, HIGH);//
   digitalWrite(m3, LOW);// left wheel forward
   digitalWrite(m4, HIGH);//
-  datalog.println("forw");
 }
   // Allocate voltage to move backwards
 void back() {
+  File datalog = SD.open("datalog.txt", FILE_WRITE);
+  datalog.println("back");
+  datalog.close();
   digitalWrite(m3, HIGH);// left wheel back
   digitalWrite(m4, LOW);//
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
-  datalog.println("back");
+
 }
   // Turn right
 void rturn() {
+  File datalog = SD.open("datalog.txt", FILE_WRITE);
+  datalog.println("right");
+  datalog.close();
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
   digitalWrite(m3, LOW);// left wheel forward
-  datalog.println("right");
+  digitalWrite(m4, HIGH);//
 }
   // Turn left
 void lturn() {
+  File datalog = SD.open("datalog.txt", FILE_WRITE);
+  datalog.println("left");
+  datalog.close();
   digitalWrite(m3, HIGH);// left wheel back
   digitalWrite(m4, LOW);//
   digitalWrite(m1, LOW);// right wheel forward
-  datalog.println("left"); 
+  digitalWrite(m2, HIGH);//  
 }
 
