@@ -5,7 +5,6 @@
 #include <SPI.h> // Req for SD Card
 
 // setup motor pin variables
-
 int m1 = 2;
 int m2 = 3;
 int m3 = 4;
