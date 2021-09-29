@@ -1,15 +1,18 @@
 #include <Arduino.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
+#include <SD.h>
 
 // setup motor pin variables
 int m1 = 3;
 int m2 = 7;
 int m3 = 8;
 int m4 = 9;
-
 int p1 = 5;
 int p2 = 6;
+
+// setup SD card pin
+const int chipSelect = 4;
 
 //setup Motor pin voltage variables
 boolean a;
@@ -36,7 +39,16 @@ Ultrasonic us3(A4,A5);
 // set pinout
 void setup() {    
   Serial.begin(9600); 
-
+  
+  //setup for SD card
+  pinMode(10, OUTPUT);
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+    return;
+  }
+  
+  //initialize Protothread
   PT_INIT(&pt1);
   
   //Ultrasonic Sensors (analog pins)
@@ -59,7 +71,13 @@ void setup() {
 
 static int prot1(struct pt *pt) {
   PT_BEGIN(pt);
-  if (us1.Ranging(CM) <= 10) {
+  
+  int u1 = us1.Ranging(CM);
+  int u2 = us2.Ranging(CM);
+  int u3 = us3.Ranging(CM);
+  
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (u1 <= 10) {
     Serial.print("WARNING, going back");
     a = HIGH;
     b = LOW;
@@ -67,6 +85,14 @@ static int prot1(struct pt *pt) {
     d = LOW;
     pa = 255;
     pb = 255;
+    if (dataFile) {
+      dataFile.println("back");
+      dataFile.close();
+      // print to the serial port too:
+      Serial.println("back");
+    } else {
+      Serial.println("error opening datalog.txt");
+    }
     dm(a, b, c, d, pa, pb);
     delay(10);
   } else if (us2.Ranging(CM) <= 10) {
@@ -77,6 +103,14 @@ static int prot1(struct pt *pt) {
     d = HIGH;
     pa = 255;
     pb = 255;
+    if (dataFile) {
+      dataFile.println("right");
+      dataFile.close();
+      // print to the serial port too:
+      Serial.println("right");
+    } else {
+      Serial.println("error opening datalog.txt");
+    }
     dm(a, b, c, d, pa, pb);
     delay(10);
   } else if (us3.Ranging(CM) <= 10) {
@@ -87,6 +121,14 @@ static int prot1(struct pt *pt) {
     d = LOW;
     pa = 255;
     pb = 255;
+    if (dataFile) {
+      dataFile.println("left");
+      dataFile.close();
+      // print to the serial port too:
+      Serial.println("left");
+    } else {
+      Serial.println("error opening datalog.txt");
+    }
     dm(a, b, c, d, pa, pb);
     delay(10);
   } else {
@@ -97,6 +139,14 @@ static int prot1(struct pt *pt) {
     d = HIGH;
     pa = 255;
     pb = 255;
+    if (dataFile) {
+      dataFile.println("...");
+      dataFile.close();
+      // print to the serial port too:
+      Serial.println("...");
+    } else {
+      Serial.println("error opening datalog.txt");
+    }
     dm(a, b, c, d, pa, pb);
   }
   PT_END(pt);
@@ -110,13 +160,8 @@ void dm(boolean a, boolean b, boolean c, boolean d, int pa, int pb) {
   digitalWrite(m4, d);
   analogWrite(p1, pa);
   analogWrite(p2, pb);
-  
-  // working on converting values to strings
-  /*if (datalog) {
-    datalog.println("Bools: "+"\nm1 - "+a+"\nm2 - "+b+"\nm3 - "+c+"\nm4 - "+d);
-    datalog.println("PWM: "+"\nMotorA - "+pa+"\nMotorB - "+pb);
-  }*/
 }
+
 void loop() {
   prot1(&pt1);
 }
