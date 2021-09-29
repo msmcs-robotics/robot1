@@ -1,22 +1,29 @@
 #include <Arduino.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <pt.h>   // include protothread library - https://roboticsbackend.com/arduino-protothreads-tutorial/
+#include <SD.h> // Defualt SD Card lib
+#include <SPI.h> // Req for SD Card
+
+// double check that there are 4 inputs, and 2 PWM inputs on driver board
 
 //Wifi Module uses x pins, adding later
+
+// Open a new file to log data on SD card
+//File datalog = SD.open("datalog.txt", FILE_WRITE);
 
 // setup each protothread
 static struct pt pt1, pt2;
 
 // Create ultrasonic sensor objects to use in logic
-Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN) pinout, pinin
-Ultrasonic us2(A2,A3); // on the left
-Ultrasonic us3(A4,A5); // on teh right
+Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
+Ultrasonic us2(A2,A3); // pinout, pinin
+Ultrasonic us3(A4,A5);
 
 // setup motor pin variables
-int m4 = 11;
-int m3 = 10;
-int m2 = 6;
-int m1 = 5;
+int m4 = 9;
+int m3 = 6;
+int m2 = 5;
+int m1 = 3;
 
 // start serial monitor if needed (debugging), and
 // set pinout
@@ -40,12 +47,17 @@ void setup() {
   pinMode(m2, OUTPUT);
   pinMode(m3, OUTPUT);
   pinMode(m4, OUTPUT);
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(10)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
 }
 
 // the infinite loop to run on the arduino
 void loop()
 {
-  
+  File datalog = SD.open("datalog.txt", FILE_WRITE);
   // Serial monitoring is turned off to save on 
   // performance, but will be useful for debugging if needed
   
@@ -62,6 +74,7 @@ void loop()
   // schedule threads indefinitely
   prot1(&pt1);
   prot2(&pt2);
+  datalog.close();
 }
 
 
@@ -109,12 +122,19 @@ static int prot2(struct pt *pt) {
 }
 
   // Allocate voltage to motor pins so that
-  // the robot moves forward
+  
+void dm(int a, b) {
+  analogWrite(p1, a);// Control Speed
+  analogWrite(p2, b);//
+  datalog.println("speed written");
+}
+
 void forw() {
   digitalWrite(m1, LOW);// right wheel forward
   digitalWrite(m2, HIGH);//
   digitalWrite(m3, LOW);// left wheel forward
   digitalWrite(m4, HIGH);//
+  datalog.println("forw");
 }
   // Allocate voltage to move backwards
 void back() {
@@ -122,6 +142,7 @@ void back() {
   digitalWrite(m4, LOW);//
   digitalWrite(m1, HIGH);// right wheel back ward
   digitalWrite(m2, LOW);//
+  datalog.println("back");
 
 }
   // Turn right
@@ -130,6 +151,7 @@ void rturn() {
   digitalWrite(m2, LOW);//
   digitalWrite(m3, LOW);// left wheel forward
   digitalWrite(m4, HIGH);//
+  datalog.println("right");
 }
   // Turn left
 void lturn() {
@@ -137,5 +159,6 @@ void lturn() {
   digitalWrite(m4, LOW);//
   digitalWrite(m1, LOW);// right wheel forward
   digitalWrite(m2, HIGH);//  
+  datalog.println("left");
 }
 
