@@ -45,30 +45,13 @@ void setup() {
 // the infinite loop to run on the arduino
 void loop()
 {
-  
-  // Serial monitoring is turned off to save on 
-  // performance, but will be useful for debugging if needed
-  
-  /*Serial.print("US-1 " + us1.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  Serial.print("US-2 " + us2.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);
-  Serial.print("US-3 " + us3.Ranging(CM)); // CM or INC
-  Serial.println(" cm" );
-  delay(10);*/
+
   
   // schedule threads indefinitely
   prot1(&pt1);
   prot2(&pt2);
 }
 
-
-/* This thread determines if the robot is
-   setup to move forward, if not, then start
-   moving the robot forward 
-*/
 static int prot1(struct pt *pt) {
   PT_BEGIN(pt);
   if (digitalRead(m1) != 0 || digitalRead(m2) != 1 || digitalRead(m3) != 0 || digitalRead(m4) != 1) {
@@ -77,19 +60,6 @@ static int prot1(struct pt *pt) {
   PT_END(pt);
 }
 
-/* This thread gathers and interprets data
-   from the ultrasonic sensors and makes
-   decisions for movement based on that data.
-   
-   Specifically, if an object is measured to 
-   be at or less than 10cm away, then the robot
-   will react in accordance to the logic below.
-   
-   SideNote: 
-   us1 is in front
-   us2 is facing left, so turn right
-   us3 is facing right, so turn left
-*/
 static int prot2(struct pt *pt) {
   PT_BEGIN(pt);
   if (us1.Ranging(CM) <= 10) {
