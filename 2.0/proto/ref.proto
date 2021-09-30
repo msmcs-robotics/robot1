@@ -5,8 +5,7 @@ option java_multiple_files = true;
 
 // These values will always be between -255 and 255 to correspond to Arduino's
 // analogWrite(). The negative values are for rotating the motor backwards.
-message MotorVals {
-  int imv = 1;
-  sint32 ipwmA = 2;
-  sint32 ipwmB = 3;
+message MotorVoltage {
+  sint32 lv = 1;
+  sint32 rv = 2;
 }

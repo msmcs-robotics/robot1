@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <SD.h> // Standard SD card lib copied from the Arduino Framework
 #include <Wire.h>
 #include <pb_decode.h>
 
@@ -41,58 +40,35 @@ void setup() {
 // Function to write High/Low(x4) and PWM values to motor pins
 
 void dm(int mv, int pa, int pb) {
-  if (mv == 1) {
-    //go forward
-    digitalWrite(m1, LOW);// right wheel forward
-    digitalWrite(m2, HIGH);//
-    digitalWrite(m3, LOW);// left wheel forward
-    digitalWrite(m4, HIGH);//
-  } else if (mv == 2) {
-    // go back
-    digitalWrite(m3, HIGH);// left wheel back
-    digitalWrite(m4, LOW);//
-    digitalWrite(m1, HIGH);// right wheel back 
-    digitalWrite(m2, LOW);//
-  } else if (mv == 3) {
-    // turn right
-    digitalWrite(m1, HIGH);// right wheel back ward
-    digitalWrite(m2, LOW);//
-    digitalWrite(m3, LOW);// left wheel forward
-    digitalWrite(m4, HIGH);//
-  } else if (mv == 4) {
-    // turn left
-    digitalWrite(m3, HIGH);// left wheel back
-    digitalWrite(m4, LOW);//
-    digitalWrite(m1, LOW);// right wheel forward
-    digitalWrite(m2, HIGH);//
-  }
-  analogWrite(p1, pwmA); //write speed to Right motor
-  analogWrite(p2, pwmB); //write speed to Left motor
-}
+
 
 // Decode the packet recieved from the ESP8266mod
 void handle_packet(int packet_len) {
-    File packetFile = SD.open("packetlog.txt", FILE_WRITE);
     unsigned char packet_data[packet_len];
 
     for (auto i = 0; i < packet_len; i++) {
         packet_data[i] = Wire.read();
     }
 
-    MotorVals mvals = MotorVals_init_zero;
+    MotorVoltage voltage = MotorVoltage_init_zero;
     auto stream = pb_istream_from_buffer(packet_data, packet_len);
-    if (!pb_decode(&stream, &MotorVals_msg, &mvals)) {
+    if (!pb_decode(&stream, &MotorVoltage_msg, &voltage)) {
         Serial.print("Warning: Message decoding failed: ");
         Serial.println(PB_GET_ERROR(&stream));
     } else {
-        // pass args to dictate-movement function
-        dmm(mvals.imv, mvals.ipwmA, mvals.ipwmB);
+        drive(voltage.rv, voltage.lv);
     }
 }
 
-void loop() {
-}
+void drive(uint8_t rv, uint8_t lv) {
+    digitalWrite(m1, rv > 0 ? HIGH : LOW);
+    digitalWrite(m2, rv < 0 ? HIGH : LOW);
+    digitalWrite(m3, lv > 0 ? HIGH : LOW);
+    digitalWrite(m4, lv < 0 ? HIGH : LOW);
 
+    analogWrite(p1, abs(rv));
+    analogWrite(p2, abs(lv));
+}
 
 
 
