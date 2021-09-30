@@ -69,31 +69,3 @@ void drive(uint8_t rv, uint8_t lv) {
     analogWrite(p1, abs(rv));
     analogWrite(p2, abs(lv));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*void dm(boolean a, boolean b, boolean c, boolean d, int pa, int pb) {
-  digitalWrite(m1, a);
-  digitalWrite(m2, b);
-  digitalWrite(m3, c);
-  digitalWrite(m4, d);
-  analogWrite(p1, pa);
-  analogWrite(p2, pb);
-}
-*/
