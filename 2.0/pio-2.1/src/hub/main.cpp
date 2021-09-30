@@ -38,9 +38,15 @@ void setup() {
 }
 
 // Function to write High/Low(x4) and PWM values to motor pins
+void drive(uint8_t rv, uint8_t lv) {
+    digitalWrite(m1, rv > 0 ? HIGH : LOW);
+    digitalWrite(m2, rv < 0 ? HIGH : LOW);
+    digitalWrite(m3, lv > 0 ? HIGH : LOW);
+    digitalWrite(m4, lv < 0 ? HIGH : LOW);
 
-void dm(int mv, int pa, int pb) {
-
+    analogWrite(p1, abs(rv));
+    analogWrite(p2, abs(lv));
+}
 
 // Decode the packet recieved from the ESP8266mod
 void handle_packet(int packet_len) {
@@ -60,12 +66,5 @@ void handle_packet(int packet_len) {
     }
 }
 
-void drive(uint8_t rv, uint8_t lv) {
-    digitalWrite(m1, rv > 0 ? HIGH : LOW);
-    digitalWrite(m2, rv < 0 ? HIGH : LOW);
-    digitalWrite(m3, lv > 0 ? HIGH : LOW);
-    digitalWrite(m4, lv < 0 ? HIGH : LOW);
-
-    analogWrite(p1, abs(rv));
-    analogWrite(p2, abs(lv));
-}
+// need this just bc for compilation
+void loop(){}

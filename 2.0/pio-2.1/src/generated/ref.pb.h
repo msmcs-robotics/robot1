@@ -12,14 +12,10 @@
 /* Struct definitions */
 /* These values will always be between -255 and 255 to correspond to Arduino's
  analogWrite(). The negative values are for rotating the motor backwards. */
-typedef struct _MotorVals { 
-    bool m1; 
-    bool m2; 
-    bool m3; 
-    bool m4; 
-    int32_t pa; 
-    int32_t pb; 
-} MotorVals;
+typedef struct _MotorVoltage { 
+    int32_t lv; 
+    int32_t rv; 
+} MotorVoltage;
 
 
 #ifdef __cplusplus
@@ -27,35 +23,27 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define MotorVals_init_default                   {0, 0, 0, 0, 0, 0}
-#define MotorVals_init_zero                      {0, 0, 0, 0, 0, 0}
+#define MotorVoltage_init_default                {0, 0}
+#define MotorVoltage_init_zero                   {0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define MotorVals_m1_tag                         1
-#define MotorVals_m2_tag                         2
-#define MotorVals_m3_tag                         3
-#define MotorVals_m4_tag                         4
-#define MotorVals_pa_tag                         5
-#define MotorVals_pb_tag                         6
+#define MotorVoltage_lv_tag                      1
+#define MotorVoltage_rv_tag                      2
 
 /* Struct field encoding specification for nanopb */
-#define MotorVals_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, BOOL,     m1,                1) \
-X(a, STATIC,   SINGULAR, BOOL,     m2,                2) \
-X(a, STATIC,   SINGULAR, BOOL,     m3,                3) \
-X(a, STATIC,   SINGULAR, BOOL,     m4,                4) \
-X(a, STATIC,   SINGULAR, SINT32,   pa,                5) \
-X(a, STATIC,   SINGULAR, SINT32,   pb,                6)
-#define MotorVals_CALLBACK NULL
-#define MotorVals_DEFAULT NULL
+#define MotorVoltage_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, SINT32,   lv,                1) \
+X(a, STATIC,   SINGULAR, SINT32,   rv,                2)
+#define MotorVoltage_CALLBACK NULL
+#define MotorVoltage_DEFAULT NULL
 
-extern const pb_msgdesc_t MotorVals_msg;
+extern const pb_msgdesc_t MotorVoltage_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define MotorVals_fields &MotorVals_msg
+#define MotorVoltage_fields &MotorVoltage_msg
 
 /* Maximum encoded size of messages (where known) */
-#define MotorVals_size                           20
+#define MotorVoltage_size                        12
 
 #ifdef __cplusplus
 } /* extern "C" */
