@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "net.lberrymage.msmcsrobot.proto";
+option java_multiple_files = true;
+
+// These values will always be between -255 and 255 to correspond to Arduino's
+// analogWrite(). The negative values are for rotating the motor backwards.
+message MotorVals {
+  bool m1 = 1;
+  bool m2 = 2;
+  bool m3 = 3;
+  bool m4 = 4;
+  sint32 pa = 5;
+  sint32 pb = 6;
+}
