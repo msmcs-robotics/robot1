@@ -53,7 +53,7 @@ The math statements:
  to not go from near zero to full power when passing the 175 (halfway) mark.
 */
 // Function to write High/Low(x4) and PWM values to motor pins
-void drive(uint8_t rv, uint8_t lv) {
+void drive(int rv, int lv) {
     digitalWrite(m1, rv > 175 ? HIGH : LOW);
     digitalWrite(m2, rv < 175 ? HIGH : LOW);
     digitalWrite(m3, lv > 175 ? HIGH : LOW);
