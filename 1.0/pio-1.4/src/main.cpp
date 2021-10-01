@@ -3,8 +3,6 @@
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <SD.h>
 
-#include "ref.pb.h"
-
 
 // I2C packets
 const auto BAUD_RATE = 115200;
@@ -26,6 +24,14 @@ int m3 = 8;
 int m4 = 9;
 int p1 = 5;
 int p2 = 6;
+
+// setup values for math
+int rv1 = 0;
+int rv2 = 0;
+int rvf;
+int lv1 = 0;
+int lv2 = 0;
+int lvf;
 
 void setup () {
     // motors (digital pins)
@@ -50,20 +56,12 @@ void loop () {
   int u1 = us1.Ranging(CM);
   int u2 = us2.Ranging(CM);
   int u3 = us3.Ranging(CM);
-  
-  // setup values for math
-  int rv1 = 0;
-  int rv2 = 0;
-  int rvf;
-  int lv1 = 0;
-  int lv2 = 0;
-  int lvf;
 
   //put distances on a scale of PWM
   
   // from front sensor
   rv1 = map(u1, 1, 51, 0, 255);
-  lv1 = rv1
+  lv1 = rv1;
   
   // from left sensor
   lv2 = map(u2, 1, 51, 0, 255);
@@ -102,14 +100,14 @@ void loop () {
     rv2 += 255;
   }
 
-  rv = 255 - rv1 - rv2;
-  lv = 255 - lv1 - lv2;
+  rvf = 255 - rv1 - rv2;
+  lvf = 255 - lv1 - lv2;
 
-  if (rv < -255) {
-    rv = -255;
+  if (rvf < -255) {
+    rvf = -255;
   }
-  if (lv < -255) {
-    rv = -255;
+  if (lvf < -255) {
+    lvf = -255;
   }
   
   digitalWrite(m1, rvf > 0 ? HIGH : LOW);
@@ -122,7 +120,7 @@ void loop () {
 
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
-      dataFile.println(rv, " , ", lv);
+      dataFile.println(rvf+" , "+lvf);
       dataFile.close();
       // print to the serial port too:
       Serial.println("...");
