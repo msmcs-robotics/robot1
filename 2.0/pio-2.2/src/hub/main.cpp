@@ -27,11 +27,6 @@ int m3 = 8;
 int m4 = 9;
 int p1 = 5;
 int p2 = 6;
-
-//setup Motor pin voltage variables
-int mv;
-int pwmA;
-int pwmB;
                                                                                       // Need to discern between manual and automatic controll in app
 
 void setup() {
@@ -163,7 +158,7 @@ void calc() {
   if (lv < -255) {
     rv = -255;
   }
-  
+
   digitalWrite(m1, rvf > 0 ? HIGH : LOW);
   digitalWrite(m2, rvf < 0 ? HIGH : LOW);
   digitalWrite(m3, lvf > 0 ? HIGH : LOW);
