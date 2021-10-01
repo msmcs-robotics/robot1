@@ -20,7 +20,7 @@ Basic functions for robot sensing, logic, and movement:
 **Modules Used:**
  - HW-95 DC & PWM Motor Driver Board
  - HC-SR04 (Ultrasonic Sensors)
- - Micro SD TF Card module
+ - HW-125 Micro SD TCard Module
  - *Servo in progress...*
 
 ### 2.0
