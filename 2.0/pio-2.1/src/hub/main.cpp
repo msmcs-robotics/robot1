@@ -54,22 +54,13 @@ The math statements:
 */
 // Function to write High/Low(x4) and PWM values to motor pins
 void drive(int rv, int lv) {
-    digitalWrite(m1, rv > 175 ? HIGH : LOW);
-    digitalWrite(m2, rv < 175 ? HIGH : LOW);
-    digitalWrite(m3, lv > 175 ? HIGH : LOW);
-    digitalWrite(m4, lv < 175 ? HIGH : LOW);
+    digitalWrite(m1, rv > 0 ? HIGH : LOW);
+    digitalWrite(m2, rv < 0 ? HIGH : LOW);
+    digitalWrite(m3, lv > 0 ? HIGH : LOW);
+    digitalWrite(m4, lv < 0 ? HIGH : LOW);
 
-    if (rv < 175) {
-      analogWrite(p2, 255 - abs(rv)/175 * 255);
-    } else {
-      analogWrite(p2, 255 - abs(rv)/175 * 255);
-    }
-    
-    if (lv < 175) {
-      analogWrite(p2, 255 - abs(lv)/175 * 255);
-    } else {
-      analogWrite(p2, 255 - abs(lv)/175 * 255);
-    }
+    analogWrite(p1, abs(rv));
+    analogWrite(p2, abs(lv));
 }
 
 // Decode the packet recieved from the ESP8266mod
