@@ -34,25 +34,41 @@ void setup() {
   pinMode(p1, OUTPUT);
   pinMode(p2, OUTPUT);
 }
+
 static int prot1(struct pt *pt) {
   PT_BEGIN(pt); 
   int u1 = us1.Ranging(CM);
   int u2 = us2.Ranging(CM);
   int u3 = us3.Ranging(CM);
-  int rv;
-  int lv;
-  u1 = map(u1, 1, 51, 0, 100);
-  u2 = map(u2, 1, 51, 0, 100);
-  u3 = map(u3, 1, 51, 0, 100);
-  digitalWrite(m1, rv > 10 ? HIGH : LOW);
-  digitalWrite(m2, rv < 10 ? HIGH : LOW);
-  digitalWrite(m3, lv > 10 ? HIGH : LOW);
-  digitalWrite(m4, lv < 10 ? HIGH : LOW);
+  
+  int rv = 255;
+  int lv = 255;
+  
+  // as robot gets closer to an object, subtract speed
+  
+  //u1, if approaching from front
+  rv -= map(u1, 1, 51, 0, 255);
+  lv -= map(u1, 1, 51, 0, 255);
+  
+  //u2, if approaching from left side, make right wheel spin slower to turn right
+  rv -= map(u2, 1, 51, 0, 255);
+  
+  //u3, //u2, if approaching from right side, make left wheel spin slower to turn left
+  lv -= map(u3, 1, 51, 0, 255);
+
+  /*
+  
+  */
+  digitalWrite(m1, rv > 175 ? HIGH : LOW);
+  digitalWrite(m2, rv < 175 ? HIGH : LOW);
+  digitalWrite(m3, lv > 175 ? HIGH : LOW);
+  digitalWrite(m4, lv < 175 ? HIGH : LOW);
   analogWrite(p1, abs(rv));
   analogWrite(p2, abs(lv));
+
   File dataFile = SD.open("auto-data.txt", FILE_WRITE); 
   if (dataFile) {
-    dataFile.println(digitalRead(m1));
+    dataFile.println(rv+" , "+lv);
     dataFile.close();
     // print to the serial port too:
     Serial.println("...");

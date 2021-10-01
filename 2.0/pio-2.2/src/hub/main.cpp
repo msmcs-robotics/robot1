@@ -92,32 +92,38 @@ void handle_packet(int packet_len) {
         Serial.println(PB_GET_ERROR(&stream));
     } else {
         // map PWM to a scale of 0 to 100
-        rv = map(voltage.rv, 0, 255, -100, 100 );
-        lv = map(voltage.lv, 0, 255, -100, 100);
-        drive(rv, lv);
+        drive(voltage.rv, voltage.lv);
     }
 }
 
 void calc() {
 
-    // get distances
-    int u1 = us1.Ranging(CM);
-    int u2 = us2.Ranging(CM);
-    int u3 = us3.Ranging(CM);
+  int u1 = us1.Ranging(CM);
+  int u2 = us2.Ranging(CM);
+  int u3 = us3.Ranging(CM);
   
-    // map distances to values for voltage inputs
-    u1 = map(u1, 2, 51, 0, 100);
-    u2 = map(u2, 2, 51, 0, 100);
-    u3 = map(u3, 2, 51, 0, 100);
-
-
-    digitalWrite(m1, rv > 10 ? HIGH : LOW);
-    digitalWrite(m2, rv < 10 ? HIGH : LOW);
-    digitalWrite(m3, lv > 10 ? HIGH : LOW);
-    digitalWrite(m4, lv < 10 ? HIGH : LOW);
-
-    analogWrite(p1, abs(rv));
-    analogWrite(p2, abs(lv));
+  int rv;
+  int lv;
+  
+  if (u1 <= 20) {
+    rv = map(u1, 1, 51, 0, 255);
+    lv = map(u1, 1, 51, 0, 255);
+  } else if (u2 <= 20) {
+    rv = map(u1, 1, 51, 0, 255);
+    lv = map(u1, 1, 51, 0, 255);
+  } else if (u3 <= 20) {
+    rv = map(u3, 1, 51, 0, 255);
+    lv = map(u3, 1, 51, 0, 255);
+  } else {
+    rv = 255;
+    lv = 255;
+  }
+  digitalWrite(m1, rv > 175? HIGH : LOW);
+  digitalWrite(m2, rv < 175 ? HIGH : LOW);
+  digitalWrite(m3, lv > 175 ? HIGH : LOW);
+  digitalWrite(m4, lv < 175 ? HIGH : LOW);
+  analogWrite(p1, abs(rv));
+  analogWrite(p2, abs(lv));
 
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
