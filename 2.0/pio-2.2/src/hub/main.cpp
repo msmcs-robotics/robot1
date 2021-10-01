@@ -63,7 +63,7 @@ void drive(int rv, int lv) {
 
     File dataFile = SD.open("manual-data.txt", FILE_WRITE);
     if (dataFile) {
-      dataFile.println(rv, " , ", lv);
+      dataFile.println(rv+" , "+lv);
       dataFile.close();
       // print to the serial port too:
       Serial.println("...");
@@ -110,7 +110,7 @@ void calc() {
   
   // from front sensor
   rv1 = map(u1, 1, 51, 0, 255);
-  lv1 = rv1
+  lv1 = rv1;
   
   // from left sensor
   lv2 = map(u2, 1, 51, 0, 255);
@@ -149,16 +149,16 @@ void calc() {
     rv2 += 255;
   }
 
-  rv = 255 - rv1 - rv2;
-  lv = 255 - lv1 - lv2;
+  rvf = 255 - rv1 - rv2;
+  lvf = 255 - lv1 - lv2;
 
-  if (rv < -255) {
-    rv = -255;
+  if (rvf < -255) {
+    rvf = -255;
   }
-  if (lv < -255) {
-    rv = -255;
+  if (lvf < -255) {
+    lvf = -255;
   }
-
+  
   digitalWrite(m1, rvf > 0 ? HIGH : LOW);
   digitalWrite(m2, rvf < 0 ? HIGH : LOW);
   digitalWrite(m3, lvf > 0 ? HIGH : LOW);
@@ -169,7 +169,7 @@ void calc() {
 
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
-      dataFile.println(rv, " , ", lv);
+      dataFile.println(rvf+" , "+lvf);
       dataFile.close();
       // print to the serial port too:
       Serial.println("...");
