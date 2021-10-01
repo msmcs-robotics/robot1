@@ -60,9 +60,9 @@ void drive(uint8_t rv, uint8_t lv) {
     digitalWrite(m4, lv < 175 ? HIGH : LOW);
 
     if (rv < 175) {
-      analogWrite(p1, abs(rv)+180);
+      analogWrite(p2, 255 - abs(rv)/175 * 255);
     } else {
-      analogWrite(p1, abs(rv));
+      analogWrite(p2, 255 - abs(rv)/175 * 255);
     }
     
     if (lv < 175) {
@@ -70,7 +70,6 @@ void drive(uint8_t rv, uint8_t lv) {
     } else {
       analogWrite(p2, 255 - abs(lv)/175 * 255);
     }
-    analogWrite(p2, abs(lv));
 }
 
 // Decode the packet recieved from the ESP8266mod
