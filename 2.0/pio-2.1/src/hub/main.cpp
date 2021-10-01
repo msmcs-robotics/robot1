@@ -36,15 +36,40 @@ void setup() {
     pinMode(p1, OUTPUT);
     pinMode(p2, OUTPUT);
 }
+/*
+This will be a type of skid-steering
 
+In app: 
+ - Have two sliders, one for each motor.
+ - Moving the sliders up and down gives values on a range of {0,255}
+ - Up is forward, down is backward - up is towards 255, down is towards 0
+ - Values less than 175 (about halfway between 0,255) will result in the wheels
+   changing direction in order to move backwards
+ 
+The math statements:
+ - 255-lv/175 * 255
+ Get lv as a percentage of 175, multiply that by 255 to put it on a scale of 255,
+ and then subtract that result from 255 in order for the slider in the app
+ to not go from near zero to full power when passing the 175 (halfway) mark.
+*/
 // Function to write High/Low(x4) and PWM values to motor pins
 void drive(uint8_t rv, uint8_t lv) {
-    digitalWrite(m1, rv > 0 ? HIGH : LOW);
-    digitalWrite(m2, rv < 0 ? HIGH : LOW);
-    digitalWrite(m3, lv > 0 ? HIGH : LOW);
-    digitalWrite(m4, lv < 0 ? HIGH : LOW);
+    digitalWrite(m1, rv > 175 ? HIGH : LOW);
+    digitalWrite(m2, rv < 175 ? HIGH : LOW);
+    digitalWrite(m3, lv > 175 ? HIGH : LOW);
+    digitalWrite(m4, lv < 175 ? HIGH : LOW);
 
-    analogWrite(p1, abs(rv));
+    if (rv < 175) {
+      analogWrite(p1, abs(rv)+180);
+    } else {
+      analogWrite(p1, abs(rv));
+    }
+    
+    if (lv < 175) {
+      analogWrite(p2, 255 - abs(lv)/175 * 255);
+    } else {
+      analogWrite(p2, 255 - abs(lv)/175 * 255);
+    }
     analogWrite(p2, abs(lv));
 }
 
