@@ -15,28 +15,6 @@
 
 Wiki quickies:
  - [v1.0](https://github.com/msmcs-robotics/robot1/wiki/Version-1.0)
-
-### 1.0
-Basic functions for robot sensing, logic, and movement:
-   
-**Modules Used:**
- - HW-95 DC & PWM Motor Driver Board
- - HC-SR04 (Ultrasonic Sensors)
- - HW-125 Micro SD TCard Module
- - *Servo in progress...*
-
-### 2.0
-Integration of the ESP8266mod (ESP 12-F) module for WiFi control.
-*This is in addition to v1.0.*
-   
-**Modules Used:**
- - ESP8266mod (12-F) Wifi Module
- - *Android app details in progress*
-
-### 3.0
-Integration of a nueral network into a compilation of basic sketches. 
-*more info in progress...*
-
-### 4.0
-The accumulation of the basic sketches, WiFi, and a nueral network simultaneously.
-*more info in progress...*
+ - [v2.0](https://github.com/msmcs-robotics/robot1/wiki/Version-2.0)
+ - [v3.0](https://github.com/msmcs-robotics/robot1/wiki/Version-3.0)
+ - [v4.0](https://github.com/msmcs-robotics/robot1/wiki/Version-4.0)
