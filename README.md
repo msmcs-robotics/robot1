@@ -13,6 +13,8 @@
    
 ## 📖 Version Overviews in Detail
 
+Wiki quickies:
+ - [v1.0](https://github.com/msmcs-robotics/robot1/wiki/Version-1.0)
 
 ### 1.0
 Basic functions for robot sensing, logic, and movement:
