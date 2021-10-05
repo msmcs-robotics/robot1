@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
-#include <SD.h>
+//#include <SD.h>
 
-
-// I2C packets
-const auto BAUD_RATE = 115200;
-const auto I2C_ADDRESS = 8;
-void handle_packet(int packet_len);
+#include <SoftwareSerial.h>
 
 // setup SD card pin
-const int chipSelect = 4;
+//const int chipSelect = 4;
 
 // Ultrasonic Sensors
 Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
@@ -33,6 +29,8 @@ int lv1 = 0;
 int lv2 = 0;
 int lvf;
 
+int i;
+
 void setup () {
     // motors (digital pins)
     pinMode(m1, OUTPUT);     
@@ -42,13 +40,24 @@ void setup () {
     pinMode(p1, OUTPUT);
     pinMode(p2, OUTPUT);
     
+    Serial.begin(9600);
+    /*
     //sd card setup
     pinMode(10, OUTPUT);
     if (!SD.begin(chipSelect)) {
         Serial.println("Card failed, or not present");
         // don't do anything more:
     return;
-    }
+    }*/
+}
+
+void drive (int rvf, int lvf) {
+  digitalWrite(m1, rvf > 0 ? HIGH : LOW);
+  digitalWrite(m2, rvf < 0 ? HIGH : LOW);
+  digitalWrite(m3, lvf > 0 ? HIGH : LOW);
+  digitalWrite(m4, lvf < 0 ? HIGH : LOW);
+  analogWrite(p1, abs(rvf));
+  analogWrite(p2, abs(lvf));
 }
 
 void loop () {
@@ -57,9 +66,13 @@ void loop () {
   int u1 = us1.Ranging(CM);
   int u2 = us2.Ranging(CM);
   int u3 = us3.Ranging(CM);
+<<<<<<< HEAD
+
+=======
 //-------------------------------------------------
   //put distances on a scale of PWM powers
   
+>>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
   // from front sensor
   rv1 = map(u1, 1, 51, 0, 255);
   lv1 = rv1;
@@ -69,19 +82,33 @@ void loop () {
   
   //from right sensor
   rv2 = map(u3, 1, 51, 0, 255);
+<<<<<<< HEAD
+  
+=======
 //-------------------------------------------------
   // introduce logic
+>>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
   if (u1 <= 10) {
-    rv1 += 255;
-    lv1 += 255;
-  } 
-  if (u2 <= 10) {
-    lv2 += 255;
-  }
-  if (u3 <= 10) {
-    rv2 += 255;
+    rv1 -= 2 * rv1;
+    lv1 -= 2 * lv1;
+    drive(rv1, lv1);
+    Serial.println("Going Back");
+  } else if (u2 <= 10) {
+    rv2 -= 2 * rv2;
+    drive(rv2, lv2);
+    Serial.println("Going Right");
+  } else if (u3 <= 10) {
+    lv2 -= 2 * lv2;
+    drive(rv1, lv1);
+    Serial.println("Going Left");
+  } else {
+    Serial.println("Going Forw");
   }
 
+<<<<<<< HEAD
+}
+/*
+=======
   rvf = 255 - rv1 - rv2;
   lvf = 255 - lv1 - lv2;
 
@@ -112,6 +139,7 @@ void loop () {
     
 //-------------------------------------------------
     //log to sd card
+>>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
       dataFile.println(rvf+" , "+lvf);
@@ -120,5 +148,9 @@ void loop () {
       Serial.println("...");
     } else {
       Serial.println("error opening auto-data.txt");
+<<<<<<< HEAD
+    }*/
+=======
     }
 }
+>>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
