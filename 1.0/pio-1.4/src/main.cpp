@@ -52,12 +52,13 @@ void setup () {
 }
 
 void loop () {
+//-------------------------------------------------
   // get distances from objects
   int u1 = us1.Ranging(CM);
   int u2 = us2.Ranging(CM);
   int u3 = us3.Ranging(CM);
-
-  //put distances on a scale of PWM
+//-------------------------------------------------
+  //put distances on a scale of PWM powers
   
   // from front sensor
   rv1 = map(u1, 1, 51, 0, 255);
@@ -68,27 +69,8 @@ void loop () {
   
   //from right sensor
   rv2 = map(u3, 1, 51, 0, 255);
-
-  /* if less than 10cm away from front, 
-     add value to voltages so that they
-     will make the final voltage negative,
-     making the motors spin backwards.
-
-     - The added value of 255 compensates for the conversion
-       of distance to PWM. 
-
-     - The motors slow down the closer the robot gets to a robot.
-     - If the robot is 10cm or less from an object, add 255, so that
-       when written value is rubtracted from the final value, the result
-       will be negative, making the motors spin backward.
-
-     - The only fallacy in this method is that if the robot is 
-       10cm or less from objects from multiple sensors, the final
-       voltage will result in a value greater than 255, so the robot
-       will have to move straight back before turning away from multiple
-       objects.  
-
-  */
+//-------------------------------------------------
+  // introduce logic
   if (u1 <= 10) {
     rv1 += 255;
     lv1 += 255;
@@ -109,7 +91,17 @@ void loop () {
   if (lvf < -255) {
     lvf = -255;
   }
+//-------------------------------------------------
+    //write voltages
   
+  /*
+  
+  m1 & m2 on Low & High is right wheel forward
+  m1 & m2 on High & Low is right wheel backward
+  m3 & m4 on Low & High is left wheel forward
+  m3 & m4 on High & Low is left wheel backward
+  
+  */
   digitalWrite(m1, rvf > 0 ? HIGH : LOW);
   digitalWrite(m2, rvf < 0 ? HIGH : LOW);
   digitalWrite(m3, lvf > 0 ? HIGH : LOW);
@@ -117,7 +109,9 @@ void loop () {
 
   analogWrite(p1, abs(rvf));
   analogWrite(p2, abs(lvf));
-
+    
+//-------------------------------------------------
+    //log to sd card
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
       dataFile.println(rvf+" , "+lvf);
