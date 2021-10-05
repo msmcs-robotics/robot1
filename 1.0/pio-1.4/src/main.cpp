@@ -52,6 +52,12 @@ void setup () {
 }
 
 void drive (int rvf, int lvf) {
+  /*
+  m1 & m2 on Low & High is right wheel forward
+  m1 & m2 on High & Low is right wheel backward
+  m3 & m4 on Low & High is left wheel forward
+  m3 & m4 on High & Low is left wheel backward
+  */
   digitalWrite(m1, rvf > 0 ? HIGH : LOW);
   digitalWrite(m2, rvf < 0 ? HIGH : LOW);
   digitalWrite(m3, lvf > 0 ? HIGH : LOW);
@@ -66,13 +72,10 @@ void loop () {
   int u1 = us1.Ranging(CM);
   int u2 = us2.Ranging(CM);
   int u3 = us3.Ranging(CM);
-<<<<<<< HEAD
 
-=======
 //-------------------------------------------------
   //put distances on a scale of PWM powers
-  
->>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
+
   // from front sensor
   rv1 = map(u1, 1, 51, 0, 255);
   lv1 = rv1;
@@ -82,12 +85,7 @@ void loop () {
   
   //from right sensor
   rv2 = map(u3, 1, 51, 0, 255);
-<<<<<<< HEAD
-  
-=======
-//-------------------------------------------------
-  // introduce logic
->>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
+
   if (u1 <= 10) {
     rv1 -= 2 * rv1;
     lv1 -= 2 * lv1;
@@ -105,41 +103,8 @@ void loop () {
     Serial.println("Going Forw");
   }
 
-<<<<<<< HEAD
-}
-/*
-=======
-  rvf = 255 - rv1 - rv2;
-  lvf = 255 - lv1 - lv2;
-
-  if (rvf < -255) {
-    rvf = -255;
-  }
-  if (lvf < -255) {
-    lvf = -255;
-  }
-//-------------------------------------------------
-    //write voltages
-  
+  //log to sd card
   /*
-  
-  m1 & m2 on Low & High is right wheel forward
-  m1 & m2 on High & Low is right wheel backward
-  m3 & m4 on Low & High is left wheel forward
-  m3 & m4 on High & Low is left wheel backward
-  
-  */
-  digitalWrite(m1, rvf > 0 ? HIGH : LOW);
-  digitalWrite(m2, rvf < 0 ? HIGH : LOW);
-  digitalWrite(m3, lvf > 0 ? HIGH : LOW);
-  digitalWrite(m4, lvf < 0 ? HIGH : LOW);
-
-  analogWrite(p1, abs(rvf));
-  analogWrite(p2, abs(lvf));
-    
-//-------------------------------------------------
-    //log to sd card
->>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
       dataFile.println(rvf+" , "+lvf);
@@ -147,10 +112,5 @@ void loop () {
       // print to the serial port too:
       Serial.println("...");
     } else {
-      Serial.println("error opening auto-data.txt");
-<<<<<<< HEAD
-    }*/
-=======
-    }
+      Serial.println("error opening auto-data.txt");*/
 }
->>>>>>> 624e402af4d6382ca1427e57b0ed74600ab81566
