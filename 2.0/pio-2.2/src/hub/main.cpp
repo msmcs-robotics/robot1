@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
+#include <pb_decode.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <SD.h>
 
