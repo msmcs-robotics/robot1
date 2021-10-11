@@ -72,6 +72,13 @@ void drive(int rv, int lv) {
     }
 }
 
+void halt() {
+  digitalWrite(m1, LOW);
+  digitalWrite(m2, LOW);
+  digitalWrite(m3, LOW);
+  digitalWrite(m4, LOW);
+}
+
 // Decode the packet recieved from the ESP8266mod
 void handle_packet(int packet_len) {
     unsigned char packet_data[packet_len];
@@ -82,16 +89,31 @@ void handle_packet(int packet_len) {
 
     MotorVoltage voltage = MotorVoltage_init_zero;
     auto stream = pb_istream_from_buffer(packet_data, packet_len);
+
+/*
+    Make a switch to send a value that is either 1 or 0, or dont send.
+    
+    If switch is on (v=1), send a constant stream to stop the robot until volates are recieved and map those voltages
+    Else if switch is off (v=0), send a constant stream of data the robot to run the autonomy function
+    Else stop the robot.
+
+    int v;
+    if ( v = 1) {
+      stop();
+      drive(voltage.rv, voltage.lv);
+    } else if (v = 0) {
+      autonomy();
+    }
+*/
     if (!pb_decode(&stream, &MotorVoltage_msg, &voltage)) {
         Serial.print("Warning: Message decoding failed: ");
         Serial.println(PB_GET_ERROR(&stream));
     } else {
-        // map PWM to a scale of 0 to 100
         drive(voltage.rv, voltage.lv);
     }
 }
 
-void calc() {
+void autonomy() {
 
   // get distances from objects
   int u1 = us1.Ranging(CM);
@@ -159,6 +181,7 @@ void calc() {
     lvf = -255;
   }
   
+  /*
   digitalWrite(m1, rvf > 0 ? HIGH : LOW);
   digitalWrite(m2, rvf < 0 ? HIGH : LOW);
   digitalWrite(m3, lvf > 0 ? HIGH : LOW);
@@ -166,7 +189,10 @@ void calc() {
 
   analogWrite(p1, abs(rvf));
   analogWrite(p2, abs(lvf));
+  */
 
+  drive(rvf, lvf);
+   
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
     if (dataFile) {
       dataFile.println(rvf+" , "+lvf);
@@ -181,6 +207,4 @@ void calc() {
 
 
 
-void loop(){
-     //calc()
-}
+void loop(){}
