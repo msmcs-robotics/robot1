@@ -58,10 +58,10 @@ void drive (int rvf, int lvf) {
   m3 & m4 on Low & High is left wheel forward
   m3 & m4 on High & Low is left wheel backward
   */
-  digitalWrite(m1, rvf > 0 ? HIGH : LOW);
-  digitalWrite(m2, rvf < 0 ? HIGH : LOW);
-  digitalWrite(m3, lvf > 0 ? HIGH : LOW);
-  digitalWrite(m4, lvf < 0 ? HIGH : LOW);
+  digitalWrite(m1, rvf > 0 ? LOW : HIGH);
+  digitalWrite(m2, rvf < 0 ? LOW : HIGH);
+  digitalWrite(m3, lvf > 0 ? LOW : HIGH);
+  digitalWrite(m4, lvf < 0 ? LOW : HIGH);
   analogWrite(p1, abs(rvf));
   analogWrite(p2, abs(lvf));
 }
@@ -86,23 +86,24 @@ void loop () {
   //from right sensor
   rv2 = map(u3, 1, 51, 0, 255);
 
+
   if (u1 <= 10) {
-    rv1 -= 2 * rv1;
-    lv1 -= 2 * lv1;
+    rv1 = -rv1 - 100;
+    lv1 = -lv1 - 100;
     drive(rv1, lv1);
     Serial.println("Going Back");
   } else if (u2 <= 10) {
-    rv2 -= 2 * rv2;
-    drive(rv2, lv2);
+    rv2 = -rv2 - 100;
+    drive(rv2, lv1);
     Serial.println("Going Right");
   } else if (u3 <= 10) {
-    lv2 -= 2 * lv2;
-    drive(rv1, lv1);
+    lv2 = -lv2 - 100;
+    drive(rv1, lv2);
     Serial.println("Going Left");
   } else {
     Serial.println("Going Forw");
+    drive(rv1,lv1);
   }
-
   //log to sd card
   /*
     File dataFile = SD.open("auto-data.txt", FILE_WRITE);
