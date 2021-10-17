@@ -1,12 +1,12 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Ultrasonic.h> // lib link - https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
-//#include <SD.h>
+#include <SD.h>
 
 #include <SoftwareSerial.h>
 
 // setup SD card pin
-//const int chipSelect = 4;
+const int chipSelect = 4;
 
 // Ultrasonic Sensors
 Ultrasonic us1(A0,A1); // (Trig PIN,Echo PIN)
@@ -41,14 +41,14 @@ void setup () {
     pinMode(p2, OUTPUT);
     
     Serial.begin(9600);
-    /*
+    
     //sd card setup
-    pinMode(10, OUTPUT);
+    pinMode(4, OUTPUT);
     if (!SD.begin(chipSelect)) {
         Serial.println("Card failed, or not present");
         // don't do anything more:
     return;
-    }*/
+    }
 }
 
 void drive (int rvf, int lvf) {
@@ -102,16 +102,22 @@ void loop () {
     Serial.println("Going Left");
   } else {
     Serial.println("Going Forw");
-    drive(rv1,lv1);
+    drive(rv1, lv1);
   }
   //log to sd card
-  /*
-    File dataFile = SD.open("auto-data.txt", FILE_WRITE);
+  
+    File dataFile = SD.open("data.csv", O_WRITE|O_APPEND);
+    String rv11 = String(rv1);
+    String rv22 = String(rv2);
+    String lv11 = String(lv1);
+    String lv22 = String(lv2);
+    String out = rv11 + " , " + lv11 + " , " + rv22 + " , " + lv22;
     if (dataFile) {
-      dataFile.println(rvf+" , "+lvf);
+      dataFile.println(out);
       dataFile.close();
       // print to the serial port too:
       Serial.println("...");
     } else {
-      Serial.println("error opening auto-data.txt");*/
+      Serial.println("error opening data.csv");
+    }
 }
