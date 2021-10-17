@@ -44,12 +44,12 @@ void setup () {
     Serial.begin(9600);
     
     //sd card setup
-    pinMode(4, OUTPUT);
-    if (!SD.begin(chipSelect)) {
-        Serial.println("Card failed, or not present");
-        // don't do anything more:
+    pinMode(10, OUTPUT);
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
     return;
-    }
+  }
 }
 
 void drive (int rvf, int lvf) {
