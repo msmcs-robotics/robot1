@@ -1,6 +1,6 @@
 # Robot1 
 
-> The First Official MSMCS Robotics Robot
+> First Official MSMCS Robotics Robot
 
 ## 📋 Version Numbers and Their Context
 
