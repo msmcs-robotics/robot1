@@ -1,6 +1,6 @@
 # Robot1 
 
-> Firmware and Ciruit Diagramns for the First MSMCS Robotics Kit
+> The First Official MSMCS Robotics Robot
 
 ## 📋 Version Numbers and Their Context
 
