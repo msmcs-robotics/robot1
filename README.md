@@ -2,7 +2,7 @@
 
 > First Official MSMCS Robotics Robot
 
-## 📋 Version Numbers and Their Context
+## 📋 Version History
 
 | Version # |   Description |
 |-----------|---------------|
